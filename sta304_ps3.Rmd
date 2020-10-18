@@ -20,16 +20,27 @@ knitr::opts_chunk$set(echo = TRUE)
 Bayes' Theorem for Naive Bayes Classifier:
 $P(c|x)=\frac{P(x|c)P(c)}{P(x)}$
 
-<!-- using 12 rows of dummy data until we get the real data -->
-table <- tibble(
+
+```{r eval=F}
+install.packages('tidyverse')
+
+```
+```{r}
+library(tibble)
+
+# using 12 rows of dummy data until we get the real data
+
+data <- tibble(
   sex = c("M", "F", "M", "M", "F", "F", "F" ,"M", "F", "M", "F", "M"),
   martial_status = c("Married", "Divorced", "Single, never married", "Living common-law", "Widowed", "Separated", "Married", "Divorced", "Single, never married", "Married", "Divorced", "Single, never married"),
   age = c("under 18", "18-34", "35-50", "50-70", "over 70", "under 18", "18-34", "35-50", "under 18", "18-34", "35-50", "18-34"),
   education = c("Bachelor's", "High school", "College", "Trade Cert", "University degree above Bachelor's level", "University degree below Bachelor's level", "Bachelor's", "High school", "College", "Trade Cert", "Bachelor's", "High school"),
   has_regilious_afflication = c("Y", "Y", "N", "Y", "Y", "N", "Y", "Y", "N", "Y", "Y", "N"),
-  has_children = c("Y", "N", "Y", "N", "Y", "N", "Y", "N", "Y", "N", "N", "N")
+  has_children = c("Y", "N", "Y", "N", "Y", "N", "Y", "N", "Y", "N", "N", "N"),
+  selfrated_mental_health = c("Fair", "Good", "Very Good", "Excellent", "Poor", "Fair", "Good", "Very Good", "Good", "Very Good", "Excellent", "Good")
 )
-
+summary(data)
+```
 
 # Results
 # Discussion
