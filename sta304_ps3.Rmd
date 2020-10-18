@@ -26,7 +26,7 @@ install.packages('tidyverse')
 
 ```
 ```{r}
-library(tibble)
+library(tidyverse)
 
 # using 12 rows of dummy data until we get the real data
 
@@ -39,8 +39,75 @@ data <- tibble(
   has_children = c("Y", "N", "Y", "N", "Y", "N", "Y", "N", "Y", "N", "N", "N"),
   selfrated_mental_health = c("Fair", "Good", "Very Good", "Excellent", "Poor", "Fair", "Good", "Very Good", "Good", "Very Good", "Excellent", "Good")
 )
-summary(data)
+data
+
+
+# add 1 after all x-y combinations to avoid zero frequency problem
+
+# count y
+poor <- data %>% filter(selfrated_mental_health=="Poor") %>% tally() + 1
+fair <- data %>% filter(selfrated_mental_health=="Fair") %>% tally() + 1
+good <- data %>% filter(selfrated_mental_health=="Good") %>% tally() + 1
+vgood <- data %>% filter(selfrated_mental_health=="Very Good") %>% tally() + 1
+excellent <- data %>% filter(selfrated_mental_health=="Excellent") %>% tally() + 1
+
+total_mental <- poor + fair + good + vgood + excellent
+
+# count sex given y
+male_poor <- data %>% filter(sex=="M" & selfrated_mental_health=="Poor") %>% tally() + 1
+male_fair <- data %>% filter(sex=="M" & selfrated_mental_health=="Fair") %>% tally() + 1
+male_good <- data %>% filter(sex=="M" & selfrated_mental_health=="Good") %>% tally() + 1
+male_vgood <- data %>% filter(sex=="M" & selfrated_mental_health=="Very Good") %>% tally() + 1
+male_excellent <- data %>% filter(sex=="M" & selfrated_mental_health=="Excellent") %>% tally() + 1
+female_poor <- data %>% filter(sex=="F" & selfrated_mental_health=="Poor") %>% tally() + 1
+female_fair <- data %>% filter(sex=="F" & selfrated_mental_health=="Fair") %>% tally() + 1
+female_good <- data %>% filter(sex=="F" & selfrated_mental_health=="Good") %>% tally() + 1
+female_vgood <- data %>% filter(sex=="F" & selfrated_mental_health=="Very Good") %>% tally() + 1
+female_excellent <- data %>% filter(sex=="F" & selfrated_mental_health=="Excellent") %>% tally() + 1
+
+total_male <- male_poor + male_fair + male_good + male_vgood + male_excellent
+total_female <- female_poor + female_fair + female_good + female_vgood + female_excellent
+
+# count has_children given y
+has_children_poor <- data %>% filter(has_children=="Y" & selfrated_mental_health=="Poor") %>% tally() + 1
+has_children_fair <- data %>% filter(has_children=="Y" & selfrated_mental_health=="Fair") %>% tally() + 1
+has_children_good <- data %>% filter(has_children=="Y" & selfrated_mental_health=="Good") %>% tally() + 1
+has_children_vgood <- data %>% filter(has_children=="Y" & selfrated_mental_health=="Very Good") %>% tally() + 1
+has_children_excellent <- data %>% filter(has_children=="Y" & selfrated_mental_health=="Excellent") %>% tally() + 1
+no_children_poor <- data %>% filter(has_children=="N" & selfrated_mental_health=="Poor") %>% tally() + 1
+no_children_fair <- data %>% filter(has_children=="N" & selfrated_mental_health=="Fair") %>% tally() + 1
+no_children_good <- data %>% filter(has_children=="N" & selfrated_mental_health=="Good") %>% tally() + 1
+no_children_vgood <- data %>% filter(has_children=="N" & selfrated_mental_health=="Very Good") %>% tally() + 1
+no_children_excellent <- data %>% filter(has_children=="N" & selfrated_mental_health=="Excellent") %>% tally() + 1
+
+total_has_children <- has_children_poor + has_children_fair + has_children_good + has_children_vgood + has_children_excellent
+total_no_children <- no_children_poor + no_children_fair + no_children_good + no_children_vgood + no_children_excellent
+
+# repeat for the rest of the independent var
+
+
+
+## example: predict mental health state given male, has children
+# calculating prob(poor)
+class_prior_prob_poor <- poor / total_mental
+likelihood_poor <- (male_poor/poor) * (has_children_poor/poor)
+predictor_prior_prob_poor <- (total_male/total_mental) * (total_has_children/total_mental)
+prob_poor <- likelihood_poor * class_prior_prob_poor / predictor_prior_prob_poor
+
+prob_poor
+
+# repeat this process to get probability for fair, good, vgood, excellent
+# the classification will be the class with the largest probability
+
+# note that the probability value themselves should not be taken seriously since naive bayes is a bad estimator (so we cannot say how confident we are in this classification)
+
+
+
+
+
 ```
+
+
 
 # Results
 # Discussion
