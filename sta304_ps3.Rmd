@@ -45,11 +45,17 @@ $P(c|x)=\frac{P(x|c)P(c)}{P(x)}$
 
 
 ```{r eval=F}
-install.packages('tidyverse')
-
+# install.packages('tidyverse')
+# install.packages("sjstats")
+# install.packages("ROCR")
+# install.packages("brms")
+# install.packages("modelr")
+install.packages("nnet")
+# install.packages("tidybayes")
+require(nnet)
+library(tidyverse) # for data manipulation and plots
 ```
 ```{r}
-library(tidyverse)
 
 # using 12 rows of dummy data until we get the real data
 
@@ -129,6 +135,37 @@ prob_poor
 
 
 ```
+
+
+```{r}
+poll <- as_tibble(data.frame(read_csv("gss_cleaned.csv")))
+
+poll <- poll %>% select(age, sex, marital_status, self_rated_mental_health)
+
+poll <- head(poll, 1000)
+poll
+```
+```{r}
+# poll <- mutate(poll, )
+# model <- brm(formula = self_rated_mental_health ~ age+sex+marital_status,
+#              data = poll,
+#              family = multinomial(),
+#              seed = 69)
+
+model <- multinom(self_rated_mental_health ~ age + sex + marital_status, 
+                  data = poll)
+summary(model)
+
+```
+
+```{r}
+head(fitted(model))
+
+input <- data.frame(age = c(21.5), sex = c("Male"), marital_status = c("Single, never married"))
+predict(model, newdata = input, "probs")
+```
+
+
 
 
 
