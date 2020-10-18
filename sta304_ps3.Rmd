@@ -1,0 +1,17 @@
+---
+title: "TBD"
+author: "James Bao, Alan Chen, Xinyi Zhang"
+date: "10/17/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Abstract
+# Introduction
+# Data
+# Model
+# Results
+# Discussion
