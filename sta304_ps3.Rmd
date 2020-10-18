@@ -138,21 +138,25 @@ prob_poor
 
 
 ```{r}
-poll <- as_tibble(data.frame(read_csv("gss_cleaned.csv")))
+# load the csv, can be downloaded via utoronto
+poll <- as_tibble(data.frame(read_csv("gss_cleaned.csv"))) 
 
-poll <- poll %>% select(age, sex, marital_status, self_rated_mental_health)
+# choose pertinent variables
+poll <- poll %>% select(age, sex, marital_status,self_rated_health, 
+                        self_rated_mental_health)
+
+# clean up the data
+# poll$self_rated_mental_health %>% table()
+# poll<-poll[!grepl("Don't know", poll$self_rated_mental_health),]
+# poll$self_rated_mental_health %>% table()
 
 poll <- head(poll, 1000)
-poll
+
 ```
 ```{r}
-# poll <- mutate(poll, )
-# model <- brm(formula = self_rated_mental_health ~ age+sex+marital_status,
-#              data = poll,
-#              family = multinomial(),
-#              seed = 69)
 
-model <- multinom(self_rated_mental_health ~ age + sex + marital_status, 
+
+model <- multinom(self_rated_mental_health ~ age + sex + marital_status +self_rated_health, 
                   data = poll)
 summary(model)
 
@@ -161,7 +165,7 @@ summary(model)
 ```{r}
 head(fitted(model))
 
-input <- data.frame(age = c(21.5), sex = c("Male"), marital_status = c("Single, never married"))
+input <- data.frame(self_rated_health = c("Excellent"), age = c(21.5), sex = c("Male"), marital_status = c("Single, never married"))
 predict(model, newdata = input, "probs")
 ```
 
