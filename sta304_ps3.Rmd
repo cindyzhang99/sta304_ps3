@@ -54,66 +54,151 @@ In the interest of space, we will only discuss the variables in the dataset that
 * age (agedc in the original dataset): the exact age of the respondent (in decimals) at the time of the survey
 * sex (sex): sex of the respondent, the options being "Male" or "Female"
 * marital_status (marstat): marital status of the respondent, the options being "Single, never married", "Married", "Living common-law", "Separated" (but still legally married), "Divorced", or "Widowed"
-* self_rated_health (srh_110): self-rated health, the options being "Excellent", "Very good", "Good", "Fair", and "Poor"
+* self_rated_health (srh_110): self-rated physical health, the options being "Excellent", "Very good", "Good", "Fair", and "Poor"
 * self_rated_mental_health (srh_115): self-rated mental health, the options being "Excellent", "Very good", "Good", "Fair", and "Poor"
 
 For age, there is a similar variable in the original dataset that uses only natural numbers (agec), however, we chose to use agedc (and renamed it to "age") in the interest of accuracy. There are many variables related to marriage in the original dataset (totunc: total number of marriage and common-law unions, nmarevrc: number of marriages the respondent has had, etc.) but they don't capture the same scope of information as marital_status does (for example, being divorced or widowed is not reflected in those variables). Consequently, we chose marital status as opposed to the other available variables related to marriage. For the other three variables we use (sex, self_rated_health or srh_110 in the original dataset, and self_rated_mental_health or srh_115 in the original dataset), there are no similar equivalents.
 
 ## Data Visualization
-Specific instructions on how to download the 2017 GSS dataset can be found in the header of this file.
-```{r eval=F}
-install.packages('tidyverse')
-install.packages("sjstats")
-install.packages("ROCR")
-install.packages("brms")
-install.packages("modelr")
-install.packages("nnet")
-install.packages("tidybayes")
-require(nnet)
-library(tidyverse) # for data manipulation and plots
-```
+Specific instructions on how to download the 2017 GSS dataset can be found in the header of the gss_cleaning.R file found here (https://github.com/cindyzhang99/sta304_ps3/blob/main/gss_cleaning/gss_cleaning.R).
 
-```{r}
-# load the csv, can be downloaded via utoronto
-poll <- as_tibble(data.frame(read_csv("gss_cleaned.csv"))) 
+We cleaned the original 2017 GSS dataset using gss_cleaning.R, producing gss_cleaned.csv.
+
+```{r message=FALSE}
+library(tidyverse)
+
+# load the cleaned dataset
+data <- read_csv("gss_cleaned.csv")
 
 # choose pertinent variables
-poll <- poll %>% select(age, sex, marital_status,self_rated_health, 
+data <- data %>% select(age, sex, marital_status, self_rated_health, 
                         self_rated_mental_health)
 
-# clean up the data
-poll$self_rated_mental_health %>% table()
-poll<-poll[!grepl("Don't know", poll$self_rated_mental_health),]
-poll$self_rated_mental_health %>% table()
+# choose subset of data with valid mental health self-rating
+data<-data[!grepl("Don't know", data$self_rated_mental_health),]
 
-# poll <- head(poll, 1000)
+# view distributions of the variables of interest
+# summary table with statistics for age
+summary(data$age)
+# distribution of age as a histogram
+ggplot(data, aes(x=age)) + geom_histogram(position="identity", binwidth = 10) +
+  xlab("Age (years)") +
+  ylab("Number of Respondents") +
+  ggtitle("Figure 1: Distribution of the age of respondents.")
 
+# total number of observations in the dataset
+total_count = nrow(data)
+
+# summary table with counts for sex
+tibble_sex <- data.frame(table(data$sex)) %>%
+  rename(
+    sex = Var1,
+    count = Freq
+  )
+tibble_sex
+# distribution of sex as a bar graph in percentages
+ggplot(tibble_sex, aes(x = sex, y = count/total_count)) + 
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = paste0(round(count/total_count*100), "%")),
+            color="white",
+            position = position_stack(vjust = 0.5)) +
+  xlab("Sex") +
+  ylab("Percentage of Respondents") +
+  ggtitle("Figure 2: Distribution of the sex of respondents in percentages.")
+
+# summary table with counts for marital status
+tibble_marital_status <- data.frame(table(data$marital_status)) %>%
+  rename(
+    marital_status = Var1,
+    count = Freq
+  )
+# manually changing the order of factors in the following output table and graph
+tibble_marital_status$marital_status <- factor(tibble_marital_status$marital_status, 
+                                               levels = c("Single, never married",
+                                                          "Married", "Living common-law", 
+                                                          "Separated", "Divorced",
+                                                          "Widowed"))
+tibble_marital_status
+# distribution of marital status as a bar graph in percentages
+ggplot(tibble_marital_status, aes(x = marital_status, y = count/total_count)) + 
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = paste0(round(count/total_count*100), "%")),
+            color="white",
+            position = position_stack(vjust = 0.5)) +
+  xlab("Marital Status") +
+  ylab("Percentage of Respondents") +
+  ggtitle("Figure 3: Distribution of the marital status of respondents in percentages.")
+
+# summary table with counts for self-rated health
+tibble_health <- data.frame(table(data$self_rated_health)) %>%
+  rename(
+    health = Var1,
+    count = Freq
+  )
+# manually changing the order of factors in the following output table and graph
+tibble_health$health <- factor(tibble_health$health, 
+                               levels = c("Poor", "Fair", "Good", "Very good",
+                                          "Excellent", "Don't know"))
+tibble_health
+# distribution of self-rated health as a bar graph in percentages
+ggplot(tibble_health, aes(x = health, y = count/total_count)) + 
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = paste0(round(count/total_count*100), "%")),
+            color="white",
+            position = position_stack(vjust = 0.5)) +
+  xlab("Self-rated Health") +
+  ylab("Percentage of Respondents") +
+  ggtitle("Figure 4: Distribution of the self-rated health of respondents in percentages.")
+
+# summary table with counts for self-rated mental health
+tibble_mental_health <- data.frame(table(data$self_rated_mental_health)) %>%
+  rename(
+    mental_health = Var1,
+    count = Freq
+  )
+# manually changing the order of factors in the following output table and graph
+tibble_mental_health$mental_health <- factor(tibble_mental_health$mental_health, 
+                                             levels = c("Poor", "Fair", "Good", 
+                                                        "Very good", "Excellent", 
+                                                        "Don't know"))
+tibble_mental_health
+# distribution of self-rated mental health as a bar graph in percentages
+ggplot(tibble_mental_health, aes(x = mental_health, y = count/total_count)) + 
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = paste0(round(count/total_count*100), "%")),
+            color="white",
+            position = position_stack(vjust = 0.5)) +
+  xlab("Self-rated Mental Health") +
+  ylab("Percentage of Respondents") +
+  ggtitle("Figure 5: Self-rated mental health of respondents in percentages.")
 ```
-```{r}
+Out of the respondents, approximately 54% were female and 46% were male (Figure 2). Most of the respondents were in their 60's and 70's, while the next most common demographic were respondents in their 40's and 50's (Figure 1). This preliminary look at the dataset is fairly consistent with Canadian demographics according to the 2016 Census, with the female response being approximately 3% higher than expected and the average age being approximately 11 years older than expected (the average Canadian age is 41 while the average respondent age was 52). This older demographic makes sense as individuals less than 15 years of age were not eligible to respond to the survey and are therefore not represented here. 
 
+Of the 20,602 respondents, 57 individuals declined to provide a self-rating of their mental health. For our purposes of attempting to model mental health, we consequently removed these individuals from the dataset we used in generating our model. Furthermore, according to Figure 5, the responses are heavily skewed towards positive responses, with 30% of respondents replying with 'Excellent' and 34% replying 'Very good'. 28% rated their mental health as 'Good' with the remaining 8% split 6 to 2 with regards to 'Fair' and 'Poor', respectively. These results overwhelmingly indicate that a large proportion of the sampled population feel that their mental is very strong. However, we proceed with modeling in the next section of this paper to better understand the contribution of the chosen demographic and family factors on self-rated mental. Is there a pattern of traits that separate "Excellent", "Very good", and "Good" ratings? What are the biggest distinctions between an individual with good mental health and poor mental health? These are some of the motivating questions we strive to answer with our model.
 
+# Model
+The purpose of the model is to predict a person's self-rated mental health based our selected factors of age, sex, marital status, and self-rated physical health. Since self-rated mental health is a categorical data type in this dataset, the task at its core is a classification problem.
+
+Some models that we considered were linear regression, naive Bayes, binary logistic regression, and multinomial logistic regression. To begin, linear regression is not suitable because it is often difficult to find an accurate linear relationship between predictors and categories, not to mention the fact that linear regression is more suitable when the dependent variable is continuous. Naive Bayes is a viable option since it is able to handle classification of more than two categories using joint probability and Bayes' Theorem. However, naive Bayes only works well under the assumption that the explanatory variables are independent, but this is often not the case. Given the context of the data, it is highly anticipated that the characteristics of a person are correlated in some way or another (e.g., age showing a correlation with self-rated physical health).
+
+In addition, generative models (e.g., Naive Bayes) have a higher asymptotic error than discriminative models (e.g., logistic regression), but they approach the asymptotic error faster. In other words, discriminative models tend to perform better given a large enough dataset while generative models will perform better on small dataset as they learn faster. Since the dataset is large, choosing a discriminative model would be more appropriate for this task.
+
+It is also important to note that the dependent variable has more than two categories. One way to handle this is to group multiple categories together so that there are only two categories. Then we would be able to use binary logistic regression to model the relationship. While this simplifies the complexity of implementing the model itself, there will be a loss in information from merging classes, impacting the strength of the conclusions we can draw. Another option to handle multi-classification is to use multinomial logistic regression which is an extension of binary logistic regression. The basic idea of this approach is to create a binary logistic regression model for each class. Each binary logistic regression model will do a one-versus-rest prediction for the corresponding class. The class with the highest probability will be the output prediction of the multinomial model. One of the caveats of this approach is that even more data is required to provide enough information for all binary logistic regression models for each class; otherwise, this method is prone to overfitting. This is less of a concern in this case because the size of the dataset is large enough to predict 5 classes. Thus, we chose multinomial logistic regression as our model for this task.
+
+<!--TODO: , software used to run the model, model diagonstics/checks/convergence??? -->
+
+```{r message=FALSE, warning=FALSE}
+# install.packages("nnet")
+require(nnet)
+library(tidyverse)
 model <- nnet::multinom(self_rated_mental_health ~ age + sex + marital_status + self_rated_health, 
-                  data = poll)
+                  data = data)
 summary(model)
 
-```
-
-```{r}
 head(fitted(model))
-
 input <- data.frame(self_rated_health = c("Excellent"), age = c(21.5), sex = c("Male"), marital_status = c("Single, never married"))
 predict(model, newdata = input, "probs")
 ```
-
-The purpose of the model is to predict a person's self-rated mental health based on other characteristics presented in the dataset such as demographics, lifestyle, socioeconomic status, etc. Since the self-rated mental health data is represented in categories, the task at its core is a classification problem.
-
-Some models that were considered were linear regression, Naive Bayes, binary logistic regression, and multinomial logistic regression. To begin, linear regression is not suitable because it is often difficult to find an accurate linear relationship between predictors and categories, not to mention the fact that linear regression is more suitable when the dependent variable is continuous. Naive Bayes would be a viable option since it is able to handle classification of more than two categories using joint probability and Bayes' Theorem. However, Naive Bayes only works well under the assumption that the explanatory variables are independent, but this is often not the case. Given the context of the data, it is highly anticipated that the characteristics of a person are correlated in some way or another.
-
-In addition, generative models (eg. Naive Bayes) has a higher asymptotic error than discriminative models (eg. logistic regression), but it approaches the asymptotic error faster. In other words, discriminative models tend to perform better given large enough data and generative models will perform better on less data as it learns faster. Since the dataset is large, choosing a discriminative model would be more appropriate for this task.
-
-It is also important to note that the dependent variable has more than two categories. One way to handle this is to group multiple categories together so that there are only two categories which can be used for binary logistic regression. While this simplifies the complexity of implementing the model itself, there will be a loss in information from merging classes and it alters the original research task. Another option to handle multi-classification is to use multinomial logistic regression which is an extension from binary logistic regression. The basic idea of this approach is to create a binary logistic regression model for each class. Each binary logistic regression model will do a one-versus-rest prediction of the corresponding class. The class with the highest probability will be the output prediction of the multinomial model. One of the caveats of this approach is that even more data is required to provide enough information for all binary logistic regression models for each class; otherwise, this method is prone to overfitting. This is less of a concern in this case because the size of the dataset is large enough for 5~ classes to predict. Thus, multinomial logistic regression is the chosen model for this task.
-
-<!--TODO: talk about selecting indepedant variables (as well as any pre-processing done on them before feeding into the model and why -- eg. age number vs age group), software used to run the model, model diagonstics/checks/convergence??? -->
 
 # Results
 # Discussion
@@ -129,3 +214,4 @@ Detailed information about GSS 2017: https://www23.statcan.gc.ca/imdb/p2SV.pl?Fu
 Questionnaire: https://www23.statcan.gc.ca/imdb/p3Instr.pl?Function=assembleInstr&lang=en&Item_Id=335815#qb345205
 Mental health statistics: https://www.camh.ca/en/Driving-Change/The-Crisis-is-Real/Mental-Health-Statistics
 Discriminative vs Generative Classifiers (Naive Bayes vs lostic regression): https://ai.stanford.edu/~ang/papers/nips01-discriminativegenerative.pdf
+Age and sex https://www12.statcan.gc.ca/census-recensement/2016/dp-pd/hlt-fst/as/Table.cfm?Lang=E&T=21
