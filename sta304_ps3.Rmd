@@ -181,6 +181,14 @@ input <- data.frame(self_rated_health = c("Excellent"), age = c(21.5), sex = c("
 predict(model, newdata = input, "probs")
 ```
 
+The purpose of the model is to predict a person's self-rated mental health based on other characteristics presented in the dataset such as demographics, lifestyle, socioeconomic status, etc. Since the self-rated mental health data is represented in categories, the task at its core is a classification problem.
+
+Some models that were considered were linear regression, naive bayes, binary logistic regression, and multinomial logistic regression. To begin, linear regression is not suitable because it is often difficult to find an accurate linear relationship between predictors and categories, not to mention the fact that linear regression is more suitable when the dependent variable is continuous. Naive Bayes would be a viable option since it is able to handle classification of more than two categories using joint probability and Bayes' Theorem. However, Naive Bayes only works well under the assumption that the explanatory variables are independent, but this is often not the case. Given the context of the data, it is highly anticipated that the characteristics of a person are correlated in some way or another.
+
+In addition, generative models (eg. Naive Bayes) has a higher asymptotic error than discriminative models (eg. logistic regression), but it approaches the asymptotic error faster. In other words, discriminative models tend to perform better given large enough data and generative models will perform better on less data as it learns faster. Since the dataset is large, choosing a discriminative model would be more appropriate for this task. As a result, logistic regression is the model.
+
+It is also important to note that the dependent variable has more than two categories. One way to handle this is to group multiple categories together until there are only two categories left which can be used for binary logistic regression. While this simplifies the complexity of implementing the model itself, there will be a loss in information from merging classes and it alters the original research task. The option to handle multi-classification is to use multinomial logistic regression which is extended from binary logistic regression.
+
 
 
 
@@ -196,3 +204,4 @@ predict(model, newdata = input, "probs")
 Interview method/survey size: https://www.statcan.gc.ca/eng/survey/household/4501
 Detailed information about GSS 2017: https://www23.statcan.gc.ca/imdb/p2SV.pl?Function=getSurvey&Id=335816
 Questionnaire: https://www23.statcan.gc.ca/imdb/p3Instr.pl?Function=assembleInstr&lang=en&Item_Id=335815#qb345205
+Discriminative vs Generative Classifiers (Naive Bayes vs lostic regression): https://ai.stanford.edu/~ang/papers/nips01-discriminativegenerative.pdf
