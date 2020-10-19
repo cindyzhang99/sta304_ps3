@@ -11,7 +11,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Abstract
 Predicting mental health in the context of the nuclear family. 
-Does having children have a positive (fulfilled) or negative impact (stressed)? 
 Does being married have a positive or negative impact?
 
 # Introduction
@@ -39,23 +38,13 @@ Overall, the surveying methodology and distributed questionnaire were carefully 
 ## Data Characteristics
 The full dataset of responses to the 2017 General Social Survey (Family cycle) contains 20,602 observations for over 400 variables relating to the Canadian family. A large reason for our choice to use this dataset is because it is the most recent GSS cycle available for modeling. Other benefits of this dataset have been previously touched upon in the previous section. Namely, the data was checked for consistency in real time by the CATI system (as well as by survey support staff) so there is a certain measure of accuracy that other survey results lack. Additionally, the stratified simple random sampling method used to distribute the survey suggests that the results are representative of the Canadian population to some degree (in the geographical sense at the very least). A major weakness of the data is that it is not complete because of the voluntary nature of the surveying.
 
-In the interest of space, we will only discuss the variables in the dataset that are relevant to our model. The variable we aim to predict is self_rated_mental_health while the factors that we chose to inform this prediction are age, sex, marital_status, and self_rated_health. We chose these factors based on the demographic information mentioned in mental health statistics (age, sex, and health) and based on what we suspected might contribute to mental health in the context of family composition (marital status). More explicitly, here is what information the variables in the dataset represent:
+In the interest of space, we will only discuss the variables in the dataset that are relevant to our model. The variable we aim to predict is self_rated_mental_health while the factors that we chose to inform this prediction are age, sex, marital_status, and self_rated_health. We chose these factors based on the demographic information mentioned in mental health statistics (age, sex, and health) and based on what we suspected might contribute to mental health in the context of family composition (marital status). More explicitly, here is what information the chosen variables in the dataset represent:
 
-* age (agedc in the original dataset): the age of respondent with decimal at time of the survey interview
-* sex (sex): Sex of respondent
-* marital_status (marstat): Marital status of the respondent
-* self_rated_health (srh_110): Self rated health
-* self_rated_mental_health (srh_115): Self rated mental health
-
-## Data Visualization
--what does the data look like
--plot the raw data
-
-```{r}
-library(tidyverse)
-data <- read_csv("gss_cleaned.csv")
-data <- data[, c("age", "sex", "education", "religion_has_affiliation", "marital_status", "total_children", "self_rated_mental_health")]
-```
+* age (agedc in the original dataset): the exact age of the respondent (in decimals) at the time of the survey
+* sex (sex): sex of the respondent, the options being "Male" or "Female"
+* marital_status (marstat): marital status of the respondent, the options being "Single, never married", "Married", "Living common-law", "Separated" (but still legally married), "Divorced", or "Widowed"
+* self_rated_health (srh_110): self-rated health, the options being "Excellent", "Very good", "Good", "Fair", and "Poor"
+* self_rated_mental_health (srh_115): self-rated mental health, the options being "Excellent", "Very good", "Good", "Fair", and "Poor"
 
 
 # Model
@@ -196,10 +185,6 @@ Some models that were considered were linear regression, naive bayes, binary log
 In addition, generative models (eg. Naive Bayes) has a higher asymptotic error than discriminative models (eg. logistic regression), but it approaches the asymptotic error faster. In other words, discriminative models tend to perform better given large enough data and generative models will perform better on less data as it learns faster. Since the dataset is large, choosing a discriminative model would be more appropriate for this task. As a result, logistic regression is the model.
 
 It is also important to note that the dependent variable has more than two categories. One way to handle this is to group multiple categories together until there are only two categories left which can be used for binary logistic regression. While this simplifies the complexity of implementing the model itself, there will be a loss in information from merging classes and it alters the original research task. The option to handle multi-classification is to use multinomial logistic regression which is extended from binary logistic regression.
-
-
-
-
 
 # Results
 # Discussion
