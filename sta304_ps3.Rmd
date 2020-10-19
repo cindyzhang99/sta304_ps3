@@ -146,11 +146,11 @@ poll <- poll %>% select(age, sex, marital_status,self_rated_health,
                         self_rated_mental_health)
 
 # clean up the data
-# poll$self_rated_mental_health %>% table()
-# poll<-poll[!grepl("Don't know", poll$self_rated_mental_health),]
-# poll$self_rated_mental_health %>% table()
+poll$self_rated_mental_health %>% table()
+poll<-poll[!grepl("Don't know", poll$self_rated_mental_health),]
+poll$self_rated_mental_health %>% table()
 
-poll <- head(poll, 1000)
+# poll <- head(poll, 1000)
 
 ```
 ```{r}
