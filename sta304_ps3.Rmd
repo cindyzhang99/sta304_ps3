@@ -1,6 +1,6 @@
 ---
 title: "Predicting Self-Rated Mental Health Based on Demographic and Family Traits"
-author: "James Bao, Alan Chen, Xinyi Zhang, Rose"
+author: "James Bao, Alan Chen, Xinyi Zhang, Zidong Yang"
 date: "10/19/2020"
 output: pdf_document
 ---
@@ -9,11 +9,22 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+The code used to generate this RMarkdown file can be found at https://github.com/cindyzhang99/sta304_ps3/blob/main/sta304_ps3.Rmd.
+
+
 # Abstract
-Predicting mental health in the context of the nuclear family. 
-Does being married have a positive or negative impact?
+- An abstract is included and appropriately pitched to a general audience.
+- The abstract answers: what was done, what was found, and why this matters (all at a high level).
+- If your abstract is longer than four sentences then you need to think a lot about whether it is too long. It may be fine (there are always exceptions) but you should probably have a good reason.
+
 
 # Introduction
+- The introduction is self-contained and tells a reader everything they need to know, including putting it into a broader context.
+- Your introduction should provide a bit of broader context to motivate the reader, as well as providing a bit more detail about what you're interested in, what you did, what you found, why it's important, etc.
+- A reader should be able to read only your introduction and have a good idea about the research that you carried out.
+- It would be rare that you would have tables or figures in your introduction (again there are always exceptions but think deeply about whether yours is one).
+- It must outline the structure of the report.
+
 
 # Data
 The dataset we used in our modeling is the 2017 General Social Survey (Family cycle). The following sections will discuss how the data was collected, what the key features of the dataset are, and what the data looks like.
@@ -21,11 +32,11 @@ The dataset we used in our modeling is the 2017 General Social Survey (Family cy
 ## Data Collection
 From February 1, 2017 to November 30, 2017, Statistics Canada gathered data on the Canadian family unit by conducting voluntary telephone interviews. Their target population was all non-institutionalized individuals living in Canada, aged 15 or older. Cross-sectional sampling was conducted in a two-stage design. 
 
-The stratified simple random sampling method was used in the first stage. Here, the sampling frame consisted of telephone numbers from the Census grouped as households using data from Statistic Canada's dwelling frame. Strata were formed at the census metropolitan area (CMA) level and at the province level (i.e., large CMAs formed their own strata, smaller CMAs were grouped together, and the non-CMA regions of each province were grouped together), forming a total of 27 non-overlapping strata. Finally, households were sampled randomly from each strata such that the number sampled units from each strata corresponded to the population sizes of each strata. To reiterate, the sampled population for this first stage was the chosen households from each strata. 
+The stratified simple random sampling method was used in the first stage. Here, the sampling frame consisted of telephone numbers from the Census grouped as households using data from Statistic Canada's dwelling frame. Strata were formed at the census metropolitan area (CMA) level and at the province level (i.e., large CMAs formed their own stratum, smaller CMAs were grouped together, and the non-CMA regions of each province were grouped together), forming a total of 27 non-overlapping strata. Finally, households were sampled randomly from each stratum such that the number sampled units from each stratum corresponded to the population sizes of each stratum. To reiterate, the sampled population for this first stage was the chosen households from each stratum. 
 
 The stratified simple random sampling method was also used in the second stage. Here, the sampling frame was a list of household members, aged 15 and older, from the households selected in the first stage. Then, one individual was randomly selected from each household, forming the sampled population. Approximately 43,000 individuals were contacted to participate in the survey.
 
-Overall, the surveying method using two-stage simple random stratified sampling is effective in generating a sample that geographically representative of the Canadian population. In addition to estimates about the Canadian population at large, the stratified sampling method also allows estimates to be made about subpopulations (at the province level). 
+Overall, the surveying method using two-stage simple random stratified sampling is effective in generating a sample that is geographically representative of the Canadian population. In addition to estimates about the Canadian population at large, the stratified sampling method also allows estimates to be made about subpopulations (at the province level). 
 
 Statistics Canada reported that the non-response rate was 47.6%. To reduce the effects of non-response bias, survey responses were adjusted based on the demographic characteristics of households that were non-responsive (by pulling their information from the 2016 Census). This ensures that the discrepancy between the target population and survey responses resulting from non-response is minimized. Furthermore, for the Family cycle of the GSS, responses were also adjusted for income and household size to make more accurate survey estimates for the variables of interest.
 
@@ -45,6 +56,10 @@ In the interest of space, we will only discuss the variables in the dataset that
 * marital_status (marstat): marital status of the respondent, the options being "Single, never married", "Married", "Living common-law", "Separated" (but still legally married), "Divorced", or "Widowed"
 * self_rated_health (srh_110): self-rated health, the options being "Excellent", "Very good", "Good", "Fair", and "Poor"
 * self_rated_mental_health (srh_115): self-rated mental health, the options being "Excellent", "Very good", "Good", "Fair", and "Poor"
+
+For age, there is a similar variable in the original dataset that uses only natural numbers (agec), however, we chose to use agedc (and renamed it to "age") in the interest of accuracy. There are many variables related to marriage in the original dataset (totunc: total number of marriage and common-law unions, nmarevrc: number of marriages the respondent has had, etc.) but they don't capture the same scope of information as marital_status does (for example, being divorced or widowed is not reflected in those variables). Consequently, we chose marital status as opposed to the other available variables related to marriage. For the other three variables we use (sex, self_rated_health or srh_110 in the original dataset, and self_rated_mental_health or srh_115 in the original dataset), there are no similar equivalents.
+
+## Data Visualization
 
 
 # Model
@@ -190,6 +205,8 @@ It is also important to note that the dependent variable has more than two categ
 
 # Results
 # Discussion
+Predicting mental health in the context of the nuclear family. 
+Does being married have a positive or negative impact?
 ## Weaknesses
 ## Next Steps
 
