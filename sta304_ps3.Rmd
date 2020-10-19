@@ -37,12 +37,20 @@ Per the report on the 2017 GSS from Statistics Canada, extensive research and te
 Overall, the surveying methodology and distributed questionnaire were carefully designed in the interest of collecting accurate, representative data wherever possible.
 
 ## Data Characteristics
--key features, strengths, weaknesses
--discuss variables: similar that you don't use, construct variables by combining various ones
+The full dataset of responses to the 2017 General Social Survey (Family cycle) contains 20,602 observations for over 400 variables relating to the Canadian family. A large reason for our choice to use this dataset is because it is the most recent GSS cycle available for modeling. Other benefits of this dataset have been previously touched upon in the previous section. Namely, the data was checked for consistency in real time by the CATI system (as well as by survey support staff) so there is a certain measure of accuracy that other survey results lack. Additionally, the stratified simple random sampling method used to distribute the survey suggests that the results are representative of the Canadian population to some degree (in the geographical sense at the very least). A major weakness of the data is that it is not complete because of the voluntary nature of the surveying.
+
+In the interest of space, we will only discuss the variables in the dataset that are relevant to our model. The variable we aim to predict is self_rated_mental_health while the factors that we chose to inform this prediction are age, sex, marital_status, and self_rated_health. We chose these factors based on the demographic information mentioned in mental health statistics (age, sex, and health) and based on what we suspected might contribute to mental health in the context of family composition (marital status). More explicitly, here is what information the variables in the dataset represent:
+
+* age (agedc in the original dataset): the age of respondent with decimal at time of the survey interview
+* sex (sex): Sex of respondent
+* marital_status (marstat): Marital status of the respondent
+* self_rated_health (srh_110): Self rated health
+* self_rated_mental_health (srh_115): Self rated mental health
 
 ## Data Visualization
 -what does the data look like
 -plot the raw data
+
 ```{r}
 library(tidyverse)
 data <- read_csv("gss_cleaned.csv")
@@ -57,13 +65,13 @@ $P(c|x)=\frac{P(x|c)P(c)}{P(x)}$
 
 
 ```{r eval=F}
-# install.packages('tidyverse')
-# install.packages("sjstats")
-# install.packages("ROCR")
-# install.packages("brms")
-# install.packages("modelr")
+install.packages('tidyverse')
+install.packages("sjstats")
+install.packages("ROCR")
+install.packages("brms")
+install.packages("modelr")
 install.packages("nnet")
-# install.packages("tidybayes")
+install.packages("tidybayes")
 require(nnet)
 library(tidyverse) # for data manipulation and plots
 ```
@@ -168,7 +176,7 @@ poll <- head(poll, 1000)
 ```{r}
 
 
-model <- multinom(self_rated_mental_health ~ age + sex + marital_status +self_rated_health, 
+model <- nnet::multinom(self_rated_mental_health ~ age + sex + marital_status + self_rated_health, 
                   data = poll)
 summary(model)
 
@@ -196,3 +204,4 @@ predict(model, newdata = input, "probs")
 Interview method/survey size: https://www.statcan.gc.ca/eng/survey/household/4501
 Detailed information about GSS 2017: https://www23.statcan.gc.ca/imdb/p2SV.pl?Function=getSurvey&Id=335816
 Questionnaire: https://www23.statcan.gc.ca/imdb/p3Instr.pl?Function=assembleInstr&lang=en&Item_Id=335815#qb345205
+Mental health statistics: https://www.camh.ca/en/Driving-Change/The-Crisis-is-Real/Mental-Health-Statistics
