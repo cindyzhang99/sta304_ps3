@@ -16,6 +16,8 @@ knitr::opts_chunk$set(echo = TRUE)
 # install.packages("nnet")
 # install.packages("tidybayes")
 require(nnet)
+library(ggcorrplot)
+library(ggplot2)
 library(tidyverse) # for data manipulation and plots
 ```
 
@@ -27,11 +29,18 @@ poll <- as_tibble(data.frame(read_csv("gss_cleaned.csv")))
 poll <- poll %>% select(age, sex, marital_status,self_rated_health, 
                         total_children, self_rated_mental_health)
 
+poll$has_children <- as.logical(poll$total_children) 
+poll
+original_poll <- poll
+
 # clean up the data
-poll<-poll[!grepl("Don't know", poll$self_rated_mental_health),]
+cleaned_poll<-poll[!grepl("Don't know", poll$self_rated_mental_health),]
+cleaned_poll<-cleaned_poll[
+  complete.cases(cleaned_poll$self_rated_mental_health),]
 
 # poll <- head(poll, 1000)
 
+poll <- cleaned_poll
 ```
 ```{r}
 nrow(poll)
@@ -46,7 +55,8 @@ table(poll$self_rated_mental_health)
 ```{r}
 
 
-model <- multinom(self_rated_mental_health ~ age + sex + marital_status +self_rated_health, 
+model <- multinom(self_rated_mental_health ~ age + sex + marital_status + 
+                    self_rated_health + has_children, 
                   data = poll)
 summary(model)
 ```
@@ -55,24 +65,43 @@ summary(model)
 ```{r}
 head(fitted(model))
 
-input <- data.frame(self_rated_health = c("Excellent"), age = c(21.5), sex = c("Male"), marital_status = c("Single, never married"))
+input <- data.frame(self_rated_health = c("Excellent"), age = c(21.5), sex = c("Male"), marital_status = c("Single, never married"), has_children = c(FALSE))
 predict(model, newdata = input, "probs")
 ```
 
 # Results
 
-By using the Canadian General Social survey collected in 2017 about Family, we were able to access over 20000 responses. 
+By using the Canadian General Social survey collected in 2017 about Family, we were able to access over 20000 responses. Of of the respondents, almost 50 percent of females rated themselves as 'Very Good' with respect to mental health, and over 45 % of male's reported 'Very Good'. The response rates between males and females were very similar overall, with slightly more females rating themselves good rather than excellent in comparison to the male respondents. Similarly, with respect to physical health by sex, the response distribution was almost identical comparing males to females. Similarly the age distribution is practically identical, with more Females responding than males. AS with before, our sex to marital status distribution (Figure N) are very similar to each other, although more Males reported to be MArried and NEver married while significantly more females reported to be widowed than males did. Most people rated their own mental health as Very Good, and very few people rated their own mental health as poor. However, much less people rated their own mental health as poor if they were Married or living in a common-law relationship, and divorcees and separated had much more rating themselves as poor mental health (Figure N). Most interestingly, there seems to be the largest variance in response of self rated mental health with respect to self rated health. 70% of respondents who rated their physical health as Excellent also rated their mental health as excellent, with the trend staying consistent for almost all the ratings. About half of the people who self-assessed their physical health as Poor listed their mental health as either Good or Fair and only less than 20% listed their mental as Poor.  Overall our results so fairly even and expected distributions between various demographics and there does not seem to be strong correlation between various variables we used. 
 
-As explained in the previous section, we modeled the a persons self reported mental health against several variables such as age, sex, marital status, and self rated physical health in order to gain more insight on this topic. By analyzing the summary statistic of our model shown in figure N, we can see the various results in relation to our baseline which was chosen to be self_reported_mental_health = "Excellent". By analyzing the summary table, we can notice certain variables and their affect on a persons self rating of their mental health. For example, having a married marital status decreases your log odds having an poor self reported mental health compared to an excellent self assessment by 0.92. However, being married has a much smaller affect on the odds of having fair mental health self assessment and close to no affect on Good and Very good self reported mental health in comparison to an excellent self assessment. More noticeably, the strongest correlation is found between self rated physical health and self rated mental health. An individual marking themselves as excellent physical health decreases their log chances of being in poor mental health by 5. Variables such as age as almost no affect on a persons mental health rating. 
+As explained in the previous section, we modeled Canadians self reported mental health against several variables such as age, sex, marital status, and self rated physical health in order to gain more insight on this topic. By analyzing the summary statistic of our model shown in figure N, we can see the various results in relation to our baseline which was chosen to be self_reported_mental_health = "Excellent". By analyzing the summary table, we can notice certain variables and their affect on a persons self rating of their mental health. For example, having a married marital status decreases your log odds having an poor self reported mental health compared to an excellent self assessment by 0.92. However, being married has a much smaller affect on the odds of having fair mental health self assessment and close to no affect on Good and Very good self reported mental health in comparison to an excellent self assessment. More noticeably, the strongest correlation is found between self rated physical health and self rated mental health as mentioned previously. An individual marking themselves as excellent physical health decreases their log chances of being in poor mental health by 5. Variables such as age and number of kids has limited effect on a persons mental health rating. 
+
+# Discussion
+
+Mental health is an increasingly popular topic, and there are many myths and facts regarding such a topic. Mental health is known to be a complicated issue that about half the population experience by the time theyre 40 (CMHA, 2013). By analzying our results, we look through multiple variables that we as young adults viewed to be instrumental to our own mental health, and see how that effects the general Canadian public's impression on their own mental health. With this in mind, we knew that the stigma of mental health would skew our results but certain relationships (or lack thereof) was still interesting to see. It is important to know that this discussion focuses on how a person reports their mental health, not an individuals actual mental health, and that these variables are not full representations of a persons self rating of their mental health rather just a glimpse into possible correlations.  
+
+There is a common saying "money can't buy happiness", and depending on who you ask, people have varying ideas of whether this is true or not. Due to known issues with people reporting their own income, we attempted to use age and gender as indicators of income (Elkins, 2019) in an attempt to possibly get a more accurate result. A study by McBride (2010) showed that peoples view on happiness is related to income, to a certain degree, and as such we expected to see people increasing in age to also increase the likelihood of reporting their mental health is good or excellent, and also males reporting at a better self rating in comparison to females. As shown in Figure N, these 2 variables have limited roll on any individuals self assessment of mental health. Interestingly, being male lowers the log likelihood of an individual reporting any result other than excellent and there are multiple reasons why this trend would be present. First and foremost, the well discussed wage gap across sex in Canada is a possibility, however more likely is the stigma towards mental health. Previous experience at a non-profit organization dedicated towards tackling stigma against certain individuals experiencing mental health issues showed that males are much less likely to report experiencing mental health issues. Due to the stigma that males appear "weak" should they experience mental health issues, males are much more likely to surppress sympoms and asking for help, often convincing themselves they are are fine even when dealing with extreme mental health issues. However age has almost no role towards an inidividuals self rating towards their mental health. This didn't track with our expecations of older individuals reporting better mental health. 
+
+Another factor we thought we be interesting to see was a presence of family, more specifically, whether marital status and number of children would have effect on an individuals rating of their own mental health. The presence of an attached partner (married or common-law) decreases an individuals likelihood of reporting having poor or fair mental health and mixed results regarding good or very good mental health. Individuals who reported themselves to be single and never married has a slightly higher chance of also reporting their mental else as Fair rather than excellent. Meanwhile individuals with kids 
 
 
+
+
+https://cmha.ca/fast-facts-about-mental-illness
+
+https://www.cnbc.com/2019/04/02/heres-how-much-men-and-women-earn-at-every-age.html
+
+https://www.sciencedirect.com/science/article/abs/pii/S0167268110000399
 ```{r}
-total_survey = nrow(poll)
+#total number of respondents measured
+total_survey = nrow(poll) 
+
+# 
 bar_sex <- data.frame(table(poll$sex)) %>%
   rename(
     Sex = Var1,
     Total = Freq
   )
+# graph people to sex
 ggplot(bar_sex, aes(x = Sex, y = Total/total_survey)) + 
   geom_bar(stat = "identity") +
   geom_text(aes(label = paste0(round(Total/total_survey*100), "%")),
@@ -84,17 +113,20 @@ ggplot(bar_sex, aes(x = Sex, y = Total/total_survey)) +
 ```
 
 ```{r}
-ggplot(poll, aes(x=age)) + geom_histogram(position="identity", binwidth = 10)
-mean(poll$age)
+ggplot(poll, aes(x=age)) + geom_histogram(position="identity", binwidth = 10) +
+  geom_vline(xintercept = mean(poll$age))
+
 ```
 
 ```{r}
 total_survey = nrow(poll)
+# filter and group results by self rated mental health
 bar_sex <- data.frame(table(poll$self_rated_mental_health)) %>%
   rename(
     Mental_Health = Var1,
     Total = Freq
   )
+# Distributions of people's self ratings of mental health
 ggplot(bar_sex, aes(x = Mental_Health, y = Total/total_survey)) + 
   geom_bar(stat = "identity") +
   geom_text(aes(label = paste0(round(Total/total_survey*100), "%")),
@@ -104,6 +136,170 @@ ggplot(bar_sex, aes(x = Mental_Health, y = Total/total_survey)) +
   scale_y_continuous("Number of People")
 ```
 
+```{r}
+grouped_bar_chart <- function(data, xlab, ylab, title){
+  ggplot(data, 
+       aes(y=grouped, x=value, fill=category, label=category))+
+  geom_bar(stat="identity",position="dodge", width=0.8) +
+  scale_x_continuous(ylab) + 
+  scale_y_discrete(xlab) + 
+  ggtitle(title)
+}
+```
+
+```{r}
+# graph age vs distribution of self rated mental health
+
+#data parsing into format I want for chart
+poll<- original_poll
+grouped <- poll %>%
+  count(sex, self_rated_mental_health) %>%
+  rename(
+    count=n
+  )
+#total number of votes
+total_vote <- aggregate(grouped$count, 
+                        by=list(sex=grouped$sex), FUN=sum)
+
+#process data into desired graphing format
+grouped<-left_join(grouped, total_vote, by="sex") %>%
+  rename(total=x) %>%
+  mutate(value=count/total) %>%
+  rename(grouped=sex, category=self_rated_mental_health)
 
 
+grouped_bar_chart(grouped, "Sex", "Self Report Mental Health Percentage", 
+                  "Self Report mental health by sex")
+
+```
+```{r}
+# graph age vs distribution of self rated mental health
+poll<- original_poll
+
+#data parsing into format I want for chart
+grouped <- poll %>%
+  count(sex, self_rated_health) %>%
+  rename(
+    count=n
+  )
+
+#process data into desired graphing format
+grouped<-left_join(grouped, total_vote, by="sex") %>%
+  rename(total=x) %>%
+  mutate(value=count/total) %>%
+  rename(grouped=sex, category=self_rated_health)
+
+
+grouped_bar_chart(grouped, "Sex", "Self Report Health Percentage", 
+                  "Self Report health by sex")
+
+```
+
+```{r}
+# graph age vs distribution of self rated mental health
+poll<- original_poll
+
+#data parsing into format I want for chart
+grouped <- poll %>%
+  count(sex, marital_status) %>%
+  rename(
+    count=n
+  )
+
+#process data into desired graphing format
+grouped<-left_join(grouped, total_vote, by="sex") %>%
+  rename(total=x) %>%
+  mutate(value=count/total) %>%
+  rename(grouped=sex, category=marital_status)
+
+
+grouped_bar_chart(grouped, "Sex", "Marital Status", 
+                  "Marital status by sex")
+
+```
+
+```{r}
+# graph age vs distribution of self rated mental health
+#data parsing into format I want for chart
+poll<- cleaned_poll[complete.cases(cleaned_poll$marital_status),]
+grouped <- poll %>%
+  count(marital_status, self_rated_mental_health) %>%
+  rename(
+    count=n
+  )
+
+#total number of votes
+total_vote <- aggregate(grouped$count, 
+                        by=list(marital_status=grouped$marital_status), FUN=sum)
+
+#process data into desired graphing format
+grouped<-left_join(grouped, total_vote, by="marital_status") %>%
+  rename(total=x) %>%
+  mutate(value=count/total) %>%
+  rename(grouped=marital_status, category=self_rated_mental_health)
+
+
+grouped_bar_chart(grouped, "Marital Status", 
+                  "Self Report Mental Health Percentage", 
+                  "Self Report mental health by marital status"
+                  )
+
+```
+```{r}
+poll<- original_poll[complete.cases(original_poll$marital_status),]
+
+grouped <- poll
+# grouped <- poll %>%
+#   count(self_rated_health, self_rated_mental_health) %>%
+#   rename(
+#     count=n
+#   )
+grouped
+grouped <- cor(grouped$count,use = "everything")
+
+ggcorrplot(grouped)
+```
+
+```{r}
+# graph age vs distribution of self rated mental health
+#data parsing into format I want for chart
+poll<- cleaned_poll[complete.cases(cleaned_poll$self_rated_health),]
+grouped <- poll %>%
+  count(self_rated_health, self_rated_mental_health) %>%
+  rename(
+    count=n
+  )
+#total number of votes
+total_vote <- aggregate(grouped$count, 
+                        by=list(self_rated_health=grouped$self_rated_health), FUN=sum)
+
+#process data into desired graphing format
+grouped<-left_join(grouped, total_vote, by="self_rated_health") %>%
+  rename(total=x) %>%
+  mutate(value=count/total) %>%
+  rename(grouped=self_rated_health, category=self_rated_mental_health)
+
+
+grouped_bar_chart(grouped, "Marital Status", 
+                  "Self Report Mental Health Percentage", 
+                  "Self Report mental health by marital status"
+                  )
+
+```
+
+```{r}
+# graph age vs distribution of self rated mental health
+poll<- original_poll
+ggplot(poll, aes(x=age)) + 
+  geom_histogram(data = subset(poll, sex == 'Female'), position="identity", 
+                 binwidth = 10, fill="red") +
+  geom_histogram(data = subset(poll, sex == 'Male'), position="identity", 
+                 binwidth = 10, fill="blue") +
+  geom_vline(xintercept = mean(poll$age)) +
+  xlab("Age") +
+  ylab("People")+
+  ggtitle("Age split by Sex")
+poll
+
+```
 
