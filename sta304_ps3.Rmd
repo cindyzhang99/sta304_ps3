@@ -20,15 +20,21 @@ Does being married have a positive or negative impact?
 The dataset we used in our modeling is the 2017 General Social Survey (Family cycle). The following sections will discuss how the data was collected, what the key features of the dataset are, and what the data looks like.
 
 ## Data Collection
-From February 1, 2017 to November 30, 2017, Statistics Canada gathered data on the Canadian family unit by conducting voluntary telephone interviews. Their target population was all non-institutionalized individuals living in Canada, aged 15 or older. Cross-sectional sampling was conducted in a two-stage design. The stratified simple random sampling method was used in the first stage. The stage one sampling frame consisted of the telephone numbers of Canadian households obtained from the Census and Statistic Canada's dwelling dataset. Stratifying the sample frame by geographic location, the sampled population consisted of chosen households in each of the 10 provinces.
+From February 1, 2017 to November 30, 2017, Statistics Canada gathered data on the Canadian family unit by conducting voluntary telephone interviews. Their target population was all non-institutionalized individuals living in Canada, aged 15 or older. Cross-sectional sampling was conducted in a two-stage design. 
 
-In the second stage, a single family member 15 or older was randomly chosen to take the survey. in the second stage, the sampling frame is the . The sample is the chosen
+The stratified simple random sampling method was used in the first stage. Here, the sampling frame consisted of telephone numbers from the Census grouped as households using data from Statistic Canada's dwelling frame. Strata were formed at the census metropolitan area (CMA) level and at the province level (i.e., large CMAs formed their own strata, smaller CMAs were grouped together, and the non-CMA regions of each province were grouped together), forming a total of 27 non-overlapping strata. Finally, households were sampled randomly from each strata such that the number sampled units from each strata corresponded to the population sizes of each strata. To reiterate, the sampled population for this first stage was the chosen households from each strata. 
 
--methodology: how they found people, population, frame, sample, what sampling approach,
+The stratified simple random sampling method was also used in the second stage. Here, the sampling frame was a list of household members, aged 15 and older, from the households selected in the first stage. Then, one individual was randomly selected from each household, forming the sampled population. Approximately 43,000 individuals were contacted to participate in the survey.
 
-trade-offs, 
-non-response, cost
--what is good and bad about the questionnaire
+Overall, the surveying method using two-stage simple random stratified sampling is effective in generating a sample that geographically representative of the Canadian population. In addition to estimates about the Canadian population at large, the stratified sampling method also allows estimates to be made about subpopulations (at the province level). 
+
+Statistics Canada reported that the non-response rate was 47.6%. To reduce the effects of non-response bias, survey responses were adjusted based on the demographic characteristics of households that were non-responsive (by pulling their information from the 2016 Census). This ensures that the discrepancy between the target population and survey responses resulting from non-response is minimized. Furthermore, for the Family cycle of the GSS, responses were also adjusted for income and household size to make more accurate survey estimates for the variables of interest.
+
+Statistics Canada did not disclose the true cost of conducting the survey but we can make some speculations based on the available information about their field work methodology. Surveying was conducted using Computer Assisted Telephone Interviewing (CATI) wherein interviewers read aloud the computerized questionnaire and immediately record the respondent's answers. Although this allows for a reduction in costs compared to traditional in-person surveying, labor costs still include time spent computerizing the survey, training interviewers, and having interviewers administer the questionnaire. Other labor costs include designing the questionnaire and surveying methodology as well as conducting quality control (data consistency was checked by the CATI system during surveying and unresolved inconsistencies were handled afterwards by support staff). Non-labor costs likely included paying for equipment, phone service, offices, and so forth. Again, although we don't have exact costs, we can conclude that the time and costs associated with conducting the GSS is a clear reason why it is only administered once a year.
+
+Per the report on the 2017 GSS from Statistics Canada, extensive research and testing was conducted when designing the questionnaire. Consequently, a major strength of the questionnaire is that it contains focused questions that comprehensively and extensively capture the subject of interest (the Canadian family). Upon reading through the questionnaire made available by Statistics Canada, the wording of each question is precise and clear, leaving little room for ambiguity. Additionally, another strength of the survey is that a vast majority of questions were objective (dates, events, counts) removing potential response biases that occur with subjective questions. (Not all questions were objective however, in fact the variable of interest we will model in subsequent sections consists of subjective responses.) On the other hand, because of the specificity of the questions, the survey is very long with several dozens sections and several questions per section. Furthermore, as a result of the large scope of the target population, many questions in the survey did not apply to a large majority of respondents (e.g., number of grandchildren, questions about additional marriages, etc.). The data collected is also incomplete because participants were given the option to refuse to answer or answer "I don't know" to each question since participation was voluntary.
+
+Overall, the surveying methodology and distributed questionnaire were carefully designed in the interest of collecting accurate, representative data wherever possible.
 
 ## Data Characteristics
 -key features, strengths, weaknesses
@@ -37,6 +43,12 @@ non-response, cost
 ## Data Visualization
 -what does the data look like
 -plot the raw data
+```{r}
+library(tidyverse)
+data <- read_csv("gss_cleaned.csv")
+data <- data[, c("age", "sex", "education", "religion_has_affiliation", "marital_status", "total_children", "self_rated_mental_health")]
+```
+
 
 # Model
 
@@ -169,6 +181,14 @@ input <- data.frame(self_rated_health = c("Excellent"), age = c(21.5), sex = c("
 predict(model, newdata = input, "probs")
 ```
 
+The purpose of the model is to predict a person's self-rated mental health based on other characteristics presented in the dataset such as demographics, lifestyle, socioeconomic status, etc. Since the self-rated mental health data is represented in categories, the task at its core is a classification problem.
+
+Some models that were considered were linear regression, naive bayes, binary logistic regression, and multinomial logistic regression. To begin, linear regression is not suitable because it is often difficult to find an accurate linear relationship between predictors and categories, not to mention the fact that linear regression is more suitable when the dependent variable is continuous. Naive Bayes would be a viable option since it is able to handle classification of more than two categories using joint probability and Bayes' Theorem. However, Naive Bayes only works well under the assumption that the explanatory variables are independent, but this is often not the case. Given the context of the data, it is highly anticipated that the characteristics of a person are correlated in some way or another.
+
+In addition, generative models (eg. Naive Bayes) has a higher asymptotic error than discriminative models (eg. logistic regression), but it approaches the asymptotic error faster. In other words, discriminative models tend to perform better given large enough data and generative models will perform better on less data as it learns faster. Since the dataset is large, choosing a discriminative model would be more appropriate for this task. As a result, logistic regression is the model.
+
+It is also important to note that the dependent variable has more than two categories. One way to handle this is to group multiple categories together until there are only two categories left which can be used for binary logistic regression. While this simplifies the complexity of implementing the model itself, there will be a loss in information from merging classes and it alters the original research task. The option to handle multi-classification is to use multinomial logistic regression which is extended from binary logistic regression.
+
 
 
 
@@ -178,7 +198,10 @@ predict(model, newdata = input, "probs")
 ## Weaknesses
 ## Next Steps
 
+# Appendix
+
 # References
-Interview method: https://www.statcan.gc.ca/eng/survey/household/4501
+Interview method/survey size: https://www.statcan.gc.ca/eng/survey/household/4501
 Detailed information about GSS 2017: https://www23.statcan.gc.ca/imdb/p2SV.pl?Function=getSurvey&Id=335816
 Questionnaire: https://www23.statcan.gc.ca/imdb/p3Instr.pl?Function=assembleInstr&lang=en&Item_Id=335815#qb345205
+Discriminative vs Generative Classifiers (Naive Bayes vs lostic regression): https://ai.stanford.edu/~ang/papers/nips01-discriminativegenerative.pdf
