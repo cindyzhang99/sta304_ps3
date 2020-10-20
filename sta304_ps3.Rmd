@@ -20,7 +20,7 @@ The code used to generate this RMarkdown file can be found at https://github.com
 
 
 # Abstract
-By analyzing responses provided by the Canadian General Social Survey, we modeled the likelihood of a Canadian reporting themselves in 5 different levels of mental health based on a variables regarding personal and familial information obtained in the survey. We found that there is a strong relationship between an individual's self rating for physical health and an individual's self rating for mental health, but very little correlation between any other variables. These findings indicate that mental health ratings is very unpredictable and it is very hard to guess an individuals mental health by analyzing situations in people's life. However, working towards improving an individual's physical health could improve their own mental health.
+By analyzing responses provided by the Canadian General Social Survey, we modeled the likelihood of a Canadian reporting themselves in 5 different levels of mental health based on a variables regarding personal and familial information obtained in the survey. We found that there is a strong relationship between an individual's self rating for physical health and an individual's self rating for mental health, but very little correlation between any other variables. These findings indicate that mental health ratings is very unpredictable and it is very hard to guess an individuals mental health by analyzing situations in people's life. However, it can be beneficial to improve one's physical health to improve one's mental health, as there are a lot more information regarding improving physical health in comparison to mental health. 
 
 
 # Introduction
@@ -254,6 +254,8 @@ As we hinted at with the phrase "training dataset", we conducted cross-validatio
 
 # Results
 We will graph the relationship between mental health and each of the explanatory variables as well as discuss the results of our model.
+
+
 ```{r}
 grouped_bar_chart <- function(data, xlab, ylab, title){
   ggplot(data, 
@@ -483,17 +485,33 @@ $$ \Pr(Y_i = 5) = \frac{1}{1 + \sum^{4}_{k=1} e^{\boldsymbol{\beta_k \cdot X_i}}
 
 # References
   Ben Hamner and Michael Frasco (2018). Metrics: Evaluation Metrics for Machine Learning. R package version 0.1.4. https://CRAN.R-project.org/package=Metrics
+  
   Fast Facts about Mental Illness. 2019, cmha.ca/fast-facts-about-mental-illness. 
+  
   Government of Canada, S. C. (2020, April 30). General Social Survey – Family (GSS). Government of Canada, Statistics Canada. https://www.statcan.gc.ca/eng/survey/household/4501. 
+  
   Government of Canada, S. C.s (2019). General Social Survey - Family (GSS). https://www23.statcan.gc.ca/imdb/p2SV.pl?Function=getSurvey. 
+  
   Government of Canada, S. C.s (2016). General Social Survey C31 MAIN SURVEY- FAMILY. https://www23.statcan.gc.ca/imdb/p3Instr.pl?Function=assembleInstr&lang=en&Item_Id=335815#qb345205
+  
   Government of Canada, S. C.s (2016). Age and Sex Highlight Tables, 2016 Census. https://www12.statcan.gc.ca/census-recensement/2016/dp-pd/hlt-fst/as/Table.cfm?Lang=E&T=21
+  
   H. Wickham. ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York, 2016.
+  
   Kathleen, E (2019, April 2). Here's how much men and women earn at every age. CNBC. https://www.cnbc.com/2019/04/02/heres-how-much-men-and-women-earn-at-every-age.html. 
+  
   Mcbride, M. (2010). Money, happiness, and aspirations: An experimental study. Journal of Economic Behavior &amp; Organization, 74(3), 262–276. https://doi.org/10.1016/j.jebo.2010.03.002   
+  
   Mental Illness and Addiction: Facts and Statistics. CAMH. https://www.camh.ca/en/driving-change/the-crisis-is-real/mental-health-statistics. 
+  
   Mikkelsen, K., Stojanovska, L., Polenakovic, M., Bosevski, M., &amp; Apostolopoulos, V. (2017). Exercise and mental health. Maturitas, 106, 48–56. https://doi.org/10.1016/j.maturitas.2017.09.003   
+  
   Ng, A., Jordan, M. (2020). On Discriminative vs. Generative Classifiers: A comparison of logistic regression and naive Bayes. Advances in Neural Information Processing Systems 14. http://papers.nips.cc/paper/2020-on-discriminative-vs-generative-classifiers-a-comparison-of-logistic-regression-and-naive-bayes.pdf
+  
   Venables, W. N. & Ripley, B. D. (2002) Modern Applied Statistics with S. Fourth Edition. Springer, New York. ISBN 0-387-95457-0
+  
   Welcome to CAMH. Welcome to CAMH | Bienvenue a CAMH. https://www.camh.ca/en/camh-news-and-stories/transforming-mental-health-for-children-and-youth://www.camh.ca/en/camh-news-and-stories/transforming-mental-health-for-children-and-youth. 
+  
   Wickham et al., (2019). Welcome to the tidyverse. Journal of Open Source Software, 4(43), 1686, https://doi.org/10.21105/joss.01686
+
+
