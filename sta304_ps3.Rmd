@@ -6,7 +6,14 @@ output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
+
+# install.packages("nnet")
+library(nnet)
+# install.packages("Metrics")
+library(Metrics)
+library(tidyverse)
+
 ```
 
 The code used to generate this RMarkdown file can be found at https://github.com/cindyzhang99/sta304_ps3/blob/main/sta304_ps3.Rmd.
@@ -65,7 +72,6 @@ Specific instructions on how to download the 2017 GSS dataset can be found in th
 We cleaned the original 2017 GSS dataset using gss_cleaning.R, producing gss_cleaned.csv (with variables renamed accordingly).
 
 ```{r message=FALSE, echo=FALSE}
-library(tidyverse)
 
 # load the cleaned dataset
 data <- read_csv("gss_cleaned.csv")
@@ -81,7 +87,6 @@ data<-data[complete.cases(data),]
 data<-data[!grepl("Don't know", data$self_rated_mental_health),]
 # view distributions of the variables of interest
 # summary table with statistics for age
-summary(data$age)
 # distribution of age as a histogram
 ggplot(data, aes(x=age)) + geom_histogram(position="identity", binwidth = 10) +
   xlab("Age (years)") +
@@ -97,7 +102,6 @@ tibble_sex <- data.frame(table(data$sex)) %>%
     sex = Var1,
     count = Freq
   )
-tibble_sex
 # distribution of sex as a bar graph in percentages
 ggplot(tibble_sex, aes(x = sex, y = count/total_count)) + 
   geom_bar(stat = "identity") +
@@ -120,7 +124,6 @@ tibble_marital_status$marital_status <- factor(tibble_marital_status$marital_sta
                                                           "Married", "Living common-law", 
                                                           "Separated", "Divorced",
                                                           "Widowed"))
-tibble_marital_status
 # distribution of marital status as a bar graph in percentages
 ggplot(tibble_marital_status, aes(x = marital_status, y = count/total_count)) + 
   geom_bar(stat = "identity") +
@@ -137,7 +140,6 @@ tibble_children <- data.frame(table(data$has_children)) %>%
     has_children = Var1,
     count = Freq
   )
-tibble_children
 # distribution of marital status as a bar graph in percentages
 ggplot(tibble_children, aes(x = has_children, y = count/total_count)) + 
   geom_bar(stat = "identity") +
@@ -158,7 +160,6 @@ tibble_health <- data.frame(table(data$self_rated_health)) %>%
 tibble_health$health <- factor(tibble_health$health, 
                                levels = c("Poor", "Fair", "Good", "Very good",
                                           "Excellent", "Don't know"))
-tibble_health
 # distribution of self-rated health as a bar graph in percentages
 ggplot(tibble_health, aes(x = health, y = count/total_count)) + 
   geom_bar(stat = "identity") +
@@ -180,7 +181,6 @@ tibble_mental_health$mental_health <- factor(tibble_mental_health$mental_health,
                                              levels = c("Poor", "Fair", "Good", 
                                                         "Very good", "Excellent", 
                                                         "Don't know"))
-tibble_mental_health
 # distribution of self-rated mental health as a bar graph in percentages
 ggplot(tibble_mental_health, aes(x = mental_health, y = count/total_count)) + 
   geom_bar(stat = "identity") +
@@ -228,10 +228,6 @@ Therefore, the first equation represents the probability that the self_rated_men
 To estimate the model, we use the multinom function from the library nnet written in the programming language R. Our script is run using the software RStudio.
 
 ```{r message=FALSE, warning=FALSE}
-# install.packages("nnet")
-library(nnet)
-# install.packages("Metrics")
-library(Metrics)
 
 # shuffle rows of data tibble for cross-validation
 # for reproducibility
@@ -288,7 +284,6 @@ grouped<-left_join(grouped, total_vote, by="sex") %>%
 grouped$Rating <- factor(grouped$Rating, 
                                levels = c("Poor", "Fair", "Good", "Very good",
                                           "Excellent", "Don't know"))
-grouped
 grouped_bar_chart(grouped, "Sex", "Percentage", 
                   "Figure 7: Distribution of Self-Rated Mental Health Responses by Sex")
 
@@ -321,7 +316,6 @@ grouped$grouped <- factor(grouped$grouped,
                                                           "Married", "Living common-law", 
                                                           "Separated", "Divorced",
                                                           "Widowed"))
-grouped
 grouped_bar_chart(grouped, "Marital Status", 
                   "Percentage", 
                   "Figure 8: Self-Rated Mental Health Against Marital Status")
@@ -381,12 +375,13 @@ grouped$grouped <- factor(grouped$grouped,
 grouped_bar_chart(grouped, "Self-Rated Physical Health", "Percentage", 
                   "Figure 10: Self-Rated Mental Health Against Physical Health")
 ```
-
+Table1: Summary of Multinomial Model
 ```{r}
 summary(model)
 ```
-Here, we have output a summary of the coefficients of our model. Recall the mathematical representation of our multinomial logistic regression model. The equations used to compute probabilities for each outcome only need coefficients for non-pivots which is why the outcome Excellent (which serves as the pivot in our model) doesn't appear in the table. Another interesting thing to note is that because the variables sex, marital_status, has_children, and self_rated_health are categorical, they are represented using dummy variables in our model.
+Here, we have output a summary of the coefficients of our model (Table 1). Recall the mathematical representation of our multinomial logistic regression model. The equations used to compute probabilities for each outcome only need coefficients for non-pivots which is why the outcome Excellent (which serves as the pivot in our model) doesn't appear in the table. Another interesting thing to note is that because the variables sex, marital_status, has_children, and self_rated_health are categorical, they are represented using dummy variables in our model.
 
+Table 2: Two tailed z-test
 ```{r}
 z <- summary(model)$coefficients/summary(model)$standard.errors
 (1 - pnorm(abs(z), 0, 1)) * 2
@@ -394,7 +389,7 @@ z <- summary(model)$coefficients/summary(model)$standard.errors
 
 Here we conduct a two-tailed z-test on the coefficients. To set up our analysis in the discussion section, we will define the null and alternative hypothesis here. The null hypothesis for each coefficient is that the coefficient is equal to 0, i.e., there is no difference in likelihood between one of the four values of the response variable ("Fair", "Good", "Poor", or "Very good") compared to the value "Excellent" for the given explanatory variable. The alternative hypothesis is therefore that the coefficient is not equal to zero, i.e., that there is a difference between the odds of the value of the response variable being a non-pivot outcome ("Fair", "Good", "Poor", or "Very good") and the odds of the response variable being "Excellent". Setting the significance level at 0.05, if the p-value for the coefficient of a certain explanatory variable is less than 0.05, then we can reject the null hypothesis and conclude there is statistically significant evidence that there is a difference in odds between the response variable and "Excellent" given the explanatory variable.
 
-
+Table 3: Accuracy
 ```{r}
 # take subset of dataset to form testing dataset
 testing_dataset = data[boundary:total_count,]
@@ -430,6 +425,7 @@ Due to problems with the high nonresponse rate for questions relating to income,
 
 Lastly, we will discuss the accuracy of our model. Compared to random predictions which would have an accuracy of only 20% (since there are five possible outcomes for the response variable), our cross validation results indicate that our model performs at least twice as well. Furthermore, this accuracy is calculated based on exact matches between predicted and ground truth values. If we considered predictions of Very good to be close enough to ground truth values of Excellent, the accuracy of our model will be much higher. 
 
+Table 4: Refined accuracy
 ```{r}
 map <- data.frame(find=c('Excellent', 'Very good', 'Good', 'Fair', 'Poor'),replace=c('Excellent', 'Excellent', 'Good', 'Poor', 'Poor'))
 testing_ground_truth_simplified <- as.character(map[match(testing_ground_truth, map$find), "replace"])
