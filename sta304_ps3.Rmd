@@ -17,12 +17,11 @@ By analyzing responses provided by the Canadian General Social Survey, we modele
 
 
 # Introduction
-- The introduction is self-contained and tells a reader everything they need to know, including putting it into a broader context.
-- Your introduction should provide a bit of broader context to motivate the reader, as well as providing a bit more detail about what you're interested in, what you did, what you found, why it's important, etc.
-- A reader should be able to read only your introduction and have a good idea about the research that you carried out.
-- It would be rare that you would have tables or figures in your introduction (again there are always exceptions but think deeply about whether yours is one).
-- It must outline the structure of the report.
+Mental illness affects the well-being and the quality of life for people from all walks of life. Furthermore, mental illness is far more prevalent that you might think. According to the Centre for Addiction and Mental Health, every other Canadian will have had a mental illness by the age of 40. Our goal when exploring the responses from the 2017 General Social Survey with regards to mental health was to build a model that is able to accurately predict self-rated mental health and to identify the demographic and family traits that are strongest at accurately predicting mental health. After choosing 5 explanatory variables (age, sex, marital status, has children, and self-rated physical health) based on the demographics mentioned in mental health statistics, we fit a multinomial logistic regression model on those variables in an attempt to predict self-rated mental health. 
 
+Our analysis included finding graphical correlations between the explanatory variables and self-rated mental, analyzing the coefficients of our converged model, conducting hypothesis testing on the statistical significance of the coefficients, and evaluating the accuracy of our model using cross validation. Overall, we found that our model is able to make non-trivial predictions on an individual's mental health given information about their age, sex, marital status, self-rated physical health, and if they have children. Furthermore, we found that of our five explanatory variables, the strongest predictor of self-rated mental health was self-rated physical health. We found that in addition to a strong graphical correlation, the coefficients for self-rated physical health were statistically significant at a significance level of 0.05. Unfortunately, the rest of variables did not perform as well. Although marital status had nonzero coefficients, our statistical test revealed that they were not statistically significant. The remaining three variables had coefficients that were close to zero, indicating the variables would not be helpful in differentiating an "Excellent" mental health self-rating from a "Poor" mental health self-rating.
+
+The following section of this paper discusses how the dataset we used was collected and provides a summary of the dataset features and visualization of the distribution of variables of interest. Afterwards, we discussed our process when selecting and running our model and we presented the mathematical representation of our model. Lastly, our paper presents our results (as mentioned in the previous paragraph), discusses our results, and concludes with identifying weaknesses and next steps. 
 
 # Data
 The dataset we used in our modeling is the 2017 General Social Survey (Family cycle). The following sections will discuss how the data was collected, what the key features of the dataset are, and what the data looks like.
@@ -495,7 +494,7 @@ $$ \Pr(Y_i = 5) = \frac{1}{1 + \sum^{4}_{k=1} e^{\boldsymbol{\beta_k \cdot X_i}}
   H. Wickham. ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York, 2016.
   Kathleen, E (2019, April 2). Here's how much men and women earn at every age. CNBC. https://www.cnbc.com/2019/04/02/heres-how-much-men-and-women-earn-at-every-age.html. 
   Mcbride, M. (2010). Money, happiness, and aspirations: An experimental study. Journal of Economic Behavior &amp; Organization, 74(3), 262–276. https://doi.org/10.1016/j.jebo.2010.03.002   
-  Mental Illness and Addiction: Facts and Statistics. CAMH. https://www.camh.ca/en/driving-change/the-crisis-is-real/mental-health-statistics. 
+  Mental Illness and Addiction: Facts and Statistics. CAMH. https://www.camh.ca/en/driving-change/the-crisis-is-real/mental-health-statistics.
   Mikkelsen, K., Stojanovska, L., Polenakovic, M., Bosevski, M., &amp; Apostolopoulos, V. (2017). Exercise and mental health. Maturitas, 106, 48–56. https://doi.org/10.1016/j.maturitas.2017.09.003   
   Ng, A., Jordan, M. (2020). On Discriminative vs. Generative Classifiers: A comparison of logistic regression and naive Bayes. Advances in Neural Information Processing Systems 14. http://papers.nips.cc/paper/2020-on-discriminative-vs-generative-classifiers-a-comparison-of-logistic-regression-and-naive-bayes.pdf
   Venables, W. N. & Ripley, B. D. (2002) Modern Applied Statistics with S. Fourth Edition. Springer, New York. ISBN 0-387-95457-0
