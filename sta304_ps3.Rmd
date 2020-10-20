@@ -7,6 +7,7 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(ggcorrplot)
 ```
 
 The code used to generate this RMarkdown file can be found at https://github.com/cindyzhang99/sta304_ps3/blob/main/sta304_ps3.Rmd.
@@ -251,12 +252,149 @@ training_dataset = data[0:boundary,]
 # marital status, has children, and self rated health are explanatory variables
 model <- nnet::multinom(self_rated_mental_health ~ age + sex + marital_status + has_children + 
                           self_rated_health, data = training_dataset)
-#summary(model)
-#head(fitted(model))
 ```
-Our model successfully converges after 60 iterations on the training dataset to a final negative log-likelihood value of 18179. Although this a really large number, this is not too bad considering we have over 16300 observations in the training dataset and the negative log-likelihood is equal to the likelihood we would observe the specific dataset (after taking the log and multiplying by -1). 
+Our model successfully converged after 60 iterations on the training dataset to a final negative log-likelihood value of 18179. Although this a really large number, this is not too bad considering we have over 16300 observations in the training dataset and the negative log-likelihood is equal to the likelihood we would observe the specific dataset (after taking the log and multiplying by -1). 
 
 We did not run into any diagnostic issues when running our model.
+
+As we hinted at with the phrase "training dataset", we conducted cross-validation to check our model. The procedure and the accuracy of our model is covered in the next section (Results).
+
+# Results
+We will graph the relationship between mental health and each of the explanatory variables as well as discuss the results of our model.
+```{r}
+grouped_bar_chart <- function(data, xlab, ylab, title){
+  ggplot(data, 
+       aes(y=grouped, x=value, fill=Rating, label=Rating))+
+  geom_bar(stat="identity",position="dodge", width=0.8) +
+  scale_x_continuous(ylab) + 
+  scale_y_discrete(xlab) + 
+  ggtitle(title)
+}
+# graph distribution of self-rated mental health for each gender
+
+# data parsing into format I want for chart
+grouped <- data %>%
+  count(sex, self_rated_mental_health) %>%
+  rename(
+    count=n
+  )
+#total number of votes
+total_vote <- aggregate(grouped$count, 
+                        by=list(sex=grouped$sex), FUN=sum)
+
+#process data into desired graphing format
+grouped<-left_join(grouped, total_vote, by="sex") %>%
+  rename(total=x) %>%
+  mutate(value=count/total) %>%
+  rename(grouped=sex, Rating=self_rated_mental_health)
+# manually order bars in bar graph
+grouped$Rating <- factor(grouped$Rating, 
+                               levels = c("Poor", "Fair", "Good", "Very good",
+                                          "Excellent", "Don't know"))
+grouped_bar_chart(grouped, "Sex", "Percentage", 
+                  "Figure 7: Distribution of Self-Rated Mental Health Responses by Sex")
+
+```
+```{r}
+# graph marital status vs distribution of self rated mental health
+#data parsing into format I want for chart
+grouped <- data %>%
+  count(marital_status, self_rated_mental_health) %>%
+  rename(
+    count=n
+  )
+
+#total number of votes
+total_vote <- aggregate(grouped$count, 
+                        by=list(marital_status=grouped$marital_status), FUN=sum)
+
+#process data into desired graphing format
+grouped<-left_join(grouped, total_vote, by="marital_status") %>%
+  rename(total=x) %>%
+  mutate(value=count/total) %>%
+  rename(grouped=marital_status, Rating=self_rated_mental_health)
+# manually order bars in bar graph
+grouped$Rating <- factor(grouped$Rating, 
+                               levels = c("Poor", "Fair", "Good", "Very good",
+                                          "Excellent", "Don't know"))
+# manually categories on y-axis
+grouped$grouped <- factor(grouped$grouped, 
+                               levels = c("Single, never married",
+                                                          "Married", "Living common-law", 
+                                                          "Separated", "Divorced",
+                                                          "Widowed"))
+grouped_bar_chart(grouped, "Marital Status", 
+                  "Percentage", 
+                  "Figure 8: Self-Rated Mental Health Against Marital Status")
+
+```
+```{r}
+# graph distribution of self-rated mental health for each gender
+
+# data parsing into format I want for chart
+grouped <- data %>%
+  count(has_children, self_rated_mental_health) %>%
+  rename(
+    count=n
+  )
+#total number of votes
+total_vote <- aggregate(grouped$count, 
+                        by=list(has_children=grouped$has_children), FUN=sum)
+
+#process data into desired graphing format
+grouped<-left_join(grouped, total_vote, by="has_children") %>%
+  rename(total=x) %>%
+  mutate(value=count/total) %>%
+  rename(grouped=has_children, Rating=self_rated_mental_health)
+# manually order bars in bar graph
+grouped$Rating <- factor(grouped$Rating, 
+                               levels = c("Poor", "Fair", "Good", "Very good",
+                                          "Excellent", "Don't know"))
+grouped_bar_chart(grouped, "Has Children", "Percentage", 
+                  "Figure 9: Self-Rated Mental Health With and Without Children")
+```
+```{r}
+# graph distribution of self-rated mental health for each gender
+
+# data parsing into format I want for chart
+grouped <- data %>%
+  count(self_rated_health, self_rated_mental_health) %>%
+  rename(
+    count=n
+  )
+#total number of votes
+total_vote <- aggregate(grouped$count, 
+                        by=list(self_rated_health=grouped$self_rated_health), FUN=sum)
+
+#process data into desired graphing format
+grouped<-left_join(grouped, total_vote, by="self_rated_health") %>%
+  rename(total=x) %>%
+  mutate(value=count/total) %>%
+  rename(grouped=self_rated_health, Rating=self_rated_mental_health)
+# manually order bars in bar graph
+grouped$Rating <- factor(grouped$Rating, 
+                               levels = c("Poor", "Fair", "Good", "Very good",
+                                          "Excellent", "Don't know"))
+# manually categories on y-axis
+grouped$grouped <- factor(grouped$grouped, 
+                               levels = c("Poor", "Fair", "Good", "Very good",
+                                          "Excellent", "Don't know"))
+grouped_bar_chart(grouped, "Self-Rated Physical Health", "Percentage", 
+                  "Figure 10: Self-Rated Mental Health Against Physical Health")
+```
+
+```{r}
+summary(model)
+```
+Here, we have output a summary of the coefficients of our model. Recall the mathematical representation of our multinomial logistic regression model. The equations used to compute probabilities for each outcome only need coefficients for non-pivots which is why the outcome Excellent (which serves as the pivot in our model) doesn't appear in the table. Another interesting thing to note is that because the variables sex, marital_status, has_children, and self_rated_health are categorical, they are represented using dummy variables in our model.
+
+```{r}
+z <- summary(model)$coefficients/summary(model)$standard.errors
+(1 - pnorm(abs(z), 0, 1)) * 2
+```
+
+Here we conduct a two-tailed z-test on the coefficients to determine if there is a statistically significant relationship captured by the coefficients of the explanatory variables. To set up our analysis in the discussion section, we will define the null and alternative hypothesis here. The null hypothesis for each coefficient is that the coefficient is equal to 0, i.e., there is no relationship between the explanatory variable and the response variable. The alternative hypothesis is therefore that the coefficient is not equal to zero, i.e., that there is a relationship between the explanatory variable and the response variable. Setting the significance level at 0.05, if the p-value for the coefficient of a certain explanatory variable is less than 0.05, then we can reject the null hypothesis and conclude there is statistically significant evidence that there is a relationship between that explanatory variable and the response variable.
+
 
 ```{r}
 # take subset of dataset to form testing dataset
@@ -273,7 +411,11 @@ testing_predictions <- colnames(testing_probabilities)[column_index]
 testing_ground_truth <- testing_dataset %>% pull(self_rated_mental_health)
 accuracy(testing_ground_truth, testing_predictions)
 ```
-We performed a check on the model by conducting cross validation. We split the shuffled dataset into training and testing subsets (an 80-20 split, respectively). Then, we trained the model using only the training data and made predictions on the testing data. Finally, we compared the model's predictions to the ground truth values for self-rated mental health for the test set. Our predictions for the test set had an accuracy of 54.9%. Compared to random predictions which would have an accuracy of only 20% (since there are five possible outcomes for the response variable), our model performs at least twice as well. Furthermore, this accuracy is calculated based on exact matches between predicted and ground truth values. If we considered predictions of Very good to be close enough to ground truth values of Excellent, the accuracy of our model will be much, much higher. 
+
+Additionally, we checked the predictions of our model by conducting cross validation. We split the shuffled dataset into training and testing subsets (an 80-20 split, respectively). Then, we trained the model using only the training data and made predictions on the testing data. Finally, we compared the model's predictions to the ground truth values for self-rated mental health for the test set. Our predictions for the test set had an accuracy of 54.9%. 
+
+# Discussion
+Compared to random predictions which would have an accuracy of only 20% (since there are five possible outcomes for the response variable), our model performs at least twice as well. Furthermore, this accuracy is calculated based on exact matches between predicted and ground truth values. If we considered predictions of Very good to be close enough to ground truth values of Excellent, the accuracy of our model will be much, much higher. 
 
 ```{r}
 map <- data.frame(find=c('Excellent', 'Very good', 'Good', 'Fair', 'Poor'),replace=c('Excellent', 'Excellent', 'Good', 'Poor', 'Poor'))
@@ -283,10 +425,6 @@ accuracy(testing_ground_truth_simplified, testing_predictions_simplified)
 ```
 We gain a sense of the relative accuracy of our model by mapping Very good values to Excellent values and Fair values to Poor values. This has a 67.2% accuracy which again suggests the model has identified relationships between the explanatory and response variables. 
 
-Consequently, we can proceed to the results section satisfied our model has a considerable prediction power. 
-
-# Results
-# Discussion
 Predicting mental health in the context of the nuclear family. 
 Does being married have a positive or negative impact?
 
