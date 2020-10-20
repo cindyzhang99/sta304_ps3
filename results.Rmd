@@ -253,6 +253,7 @@ grouped_bar_chart(grouped, "Marital Status",
                   )
 
 ```
+
 ```{r}
 poll<- original_poll[complete.cases(original_poll$marital_status),]
 
@@ -263,9 +264,9 @@ grouped <- poll
 #     count=n
 #   )
 grouped
-grouped <- cor(grouped$count,use = "everything")
+#grouped <- cor(grouped$count, use = "everything")
 
-ggcorrplot(grouped)
+#ggcorrplot(grouped)
 ```
 
 ```{r}

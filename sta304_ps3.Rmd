@@ -256,6 +256,8 @@ model <- nnet::multinom(self_rated_mental_health ~ age + sex + marital_status + 
 ```
 Our model successfully converges after 60 iterations on the training dataset to a final negative log-likelihood value of 18179. Although this a really large number, this is not too bad considering we have over 16300 observations in the training dataset and the negative log-likelihood is equal to the likelihood we would observe the specific dataset (after taking the log and multiplying by -1). 
 
+We did not run into any diagnostic issues when running our model.
+
 ```{r}
 # take subset of dataset to form testing dataset
 testing_dataset = data[boundary:total_count,]
@@ -282,7 +284,6 @@ accuracy(testing_ground_truth_simplified, testing_predictions_simplified)
 We gain a sense of the relative accuracy of our model by mapping Very good values to Excellent values and Fair values to Poor values. This has a 67.2% accuracy which again suggests the model has identified relationships between the explanatory and response variables. 
 
 Consequently, we can proceed to the results section satisfied our model has a considerable prediction power. 
-
 
 # Results
 # Discussion
