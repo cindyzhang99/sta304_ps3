@@ -87,12 +87,18 @@ The last variable we decided to use in our model was self assessed physical heal
 
 Overall, these conclusions potentially help contribute to finding what can cause an individual to view their mental health in a certain way. Many values that are deemed to be important to a strong mental health such as family and reaching certain goals as people age, or being married or having children did not significantly affect our models prediction on mental health. The causes of mental health issues are random and unpredictable, and this survey further shows that. The only variable that was a strong predictor of a person's rating of their own mental health was also subject to response bias and public stigma (physical health). Being married did increase ones chances of reporting positively about one's own mental health, but that is likely due to having a support group rather than the relationship itself, meaning a poor relationship can do harm as well and most other variables were inconclusive at best. This survey showed that hitting certain bench marks (earn a certain income, get married, get a certain grade etc) while rewarding would not contribute to ones mental health on the long run. Further more, the disproportionate amount of individuals reported their mental health as very good or excellent can mean one of two things. Optimistically, it means Canadians are doing great, both physically and mentally; realistically, it suggests that despite recent improvements to advocate for mental health support, the stigmas and lack of willingness to admit that an individual needs mental health support is still lacking. If people are not willing to answer honestly in an anynomous survey, it becomes hard to imagine the same individual seeking help personally. Our low accuracy in prediction further enforces that mental health issues are unpredictable, and unlike many physical diseases, mental health issues are not finite and can be hard to diagnose if the suffering individual refuses to acknowledge the need for help. 
 
+## Weaknesses and future work
+
+Our survey had many weaknesses, such as the fact that we chose to analyze a variable that is very hard to predict, prone to bias and relative to the respondents experience towards mental health. Another large weakness was the data excluded youths aged 15 and younger. This effects our results significantly because youths mental illness is a prominent issue as half of all mental health issues begin by the age of 15 and the lack of this data does not allow us to represent mental health thoroughly. This was a weakness we were aware of and knew it would affect our outcome. However, we were still curious to see how the responses would go and determine if the results can lead to insights. We also were not able to spend time to include all the variables we wanted. Variables such as income, detailed family situations and living situations were things we planned on adding to our model but due to time and covariance concerns we were not able to integrate them into our model. This would be part of our future plans in order to build a more encompassing model. Furthermore, we hope to gain less bias information on an individuals mental health by utilizing mental health surveys dedicated to measuring an individuals mental health with less bias. 
+
 https://cmha.ca/fast-facts-about-mental-illness
 
 https://www.cnbc.com/2019/04/02/heres-how-much-men-and-women-earn-at-every-age.html
 
 https://www.sciencedirect.com/science/article/abs/pii/S0167268110000399
 https://www.sciencedirect.com/science/article/pii/S0378512217308563
+
+https://www.camh.ca/en/camh-news-and-stories/transforming-mental-health-for-children-and-youth
 ```{r}
 #total number of respondents measured
 total_survey = nrow(poll) 
